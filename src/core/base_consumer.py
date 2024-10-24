@@ -1,6 +1,6 @@
 from typing import Any
 
-from liteboost.core.brokers import BaseBroker
+from .base_broker import BaseBroker
 
 
 class BaseConsumer:

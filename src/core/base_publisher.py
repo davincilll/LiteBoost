@@ -9,7 +9,6 @@ class PublishParams:
 class BasePublisher(metaclass=abc.ABCMeta):
     publish_params: PublishParams
 
-
     def publish(self, publish_params: PublishParams):
         raise NotImplementedError
 
@@ -24,7 +23,8 @@ class AbstractPublisher(LoggerLevelSetterMixin, metaclass=abc.ABCMeta, ):
         self.queue_name = self._queue_name = publisher_params.queue_name
         self.logger: logging.Logger
         self._build_logger()
-        self.publish_params_checker = PublishParamsChecker(publisher_params.consuming_function) if publisher_params.consuming_function else None
+        self.publish_params_checker = PublishParamsChecker(
+            publisher_params.consuming_function) if publisher_params.consuming_function else None
 
         self.has_init_broker = 0
         self._lock_for_count = Lock()
@@ -99,7 +99,8 @@ class AbstractPublisher(LoggerLevelSetterMixin, metaclass=abc.ABCMeta, ):
         decorators.handle_exception(retry_times=10, is_throw_error=True, time_sleep=0.1)(
             self.concrete_realization_of_publish)(Serialization.to_json_str(msg))
 
-        self.logger.debug(f'向{self._queue_name} 队列，推送消息 耗时{round(time.time() - t_start, 4)}秒  {msg_function_kw}', extra={'task_id': task_id})  # 显示msg太长了。
+        self.logger.debug(f'向{self._queue_name} 队列，推送消息 耗时{round(time.time() - t_start, 4)}秒  {msg_function_kw}',
+                          extra={'task_id': task_id})  # 显示msg太长了。
         with self._lock_for_count:
             self.count_per_minute += 1
             self.publish_msg_num_total += 1
@@ -159,7 +160,8 @@ class AbstractPublisher(LoggerLevelSetterMixin, metaclass=abc.ABCMeta, ):
             obj = func_args[0]
             cls = type(obj)
             if not hasattr(obj, ConstStrForClassMethod.OBJ_INIT_PARAMS):
-                raise ValueError(f'消费函数 {self.publisher_params.consuming_function} 是实例方法，实例必须有 {ConstStrForClassMethod.OBJ_INIT_PARAMS} 属性')
+                raise ValueError(
+                    f'消费函数 {self.publisher_params.consuming_function} 是实例方法，实例必须有 {ConstStrForClassMethod.OBJ_INIT_PARAMS} 属性')
             func_args_list[0] = {ConstStrForClassMethod.FIRST_PARAM_NAME: self.publish_params_checker.all_arg_name[0],
                                  ConstStrForClassMethod.CLS_NAME: cls.__name__,
                                  ConstStrForClassMethod.CLS_FILE: self.__get_cls_file(cls),
